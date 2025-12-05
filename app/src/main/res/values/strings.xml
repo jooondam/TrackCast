@@ -1,3 +1,60 @@
 <resources>
     <string name="app_name">TrackCast</string>
+
+    <!-- main screen -->
+    <string name="no_tracks">no tracks found</string>
+    <string name="add_first_track">tap + to add your first race track</string>
+    <string name="add_track">add track</string>
+    <string name="search_tracks">search tracks</string>
+    <string name="filter_favorites">favorites</string>
+
+    <!-- track list -->
+    <string name="track_name">track name</string>
+    <string name="location">location</string>
+    <string name="favorite">favorite</string>
+    <string name="delete_track">delete track</string>
+    <string name="edit_track">edit track</string>
+
+    <!-- add/edit track screen -->
+    <string name="add_new_track">add new track</string>
+    <string name="edit_track_title">edit track</string>
+    <string name="track_name_hint">enter track name</string>
+    <string name="location_hint">enter location</string>
+    <string name="country_hint">enter country</string>
+    <string name="latitude_hint">latitude</string>
+    <string name="longitude_hint">longitude</string>
+    <string name="save">save</string>
+    <string name="cancel">cancel</string>
+    <string name="use_current_location">use current location</string>
+
+    <!-- track detail screen -->
+    <string name="track_details">track details</string>
+    <string name="weather_info">weather information</string>
+    <string name="temperature">temperature</string>
+    <string name="track_surface_temp">track surface temp</string>
+    <string name="humidity">humidity</string>
+    <string name="wind_speed">wind speed</string>
+    <string name="conditions">conditions</string>
+    <string name="last_updated">last updated</string>
+    <string name="refresh_weather">refresh weather</string>
+
+    <!-- weather conditions -->
+    <string name="sunny">sunny</string>
+    <string name="cloudy">cloudy</string>
+    <string name="rainy">rainy</string>
+    <string name="partly_cloudy">partly cloudy</string>
+
+    <!-- messages -->
+    <string name="track_added">track added successfully</string>
+    <string name="track_updated">track updated successfully</string>
+    <string name="track_deleted">track deleted</string>
+    <string name="error_occurred">an error occurred</string>
+    <string name="confirm_delete">are you sure you want to delete this track?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+
+    <!-- validation -->
+    <string name="error_empty_track_name">track name cannot be empty</string>
+    <string name="error_empty_location">location cannot be empty</string>
+    <string name="error_invalid_coordinates">invalid coordinates</string>
 </resources>

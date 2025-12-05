@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- base colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- iOS light theme colors -->
+    <color name="ios_light_background">#F2F2F7</color>
+    <color name="ios_light_surface">#FFFFFF</color>
+    <color name="ios_light_primary">#007AFF</color>
+    <color name="ios_light_secondary">#5856D6</color>
+    <color name="ios_light_text_primary">#000000</color>
+    <color name="ios_light_text_secondary">#3C3C43</color>
+    <color name="ios_light_text_tertiary">#8E8E93</color>
+
+    <!-- iOS dark theme colors -->
+    <color name="ios_dark_background">#000000</color>
+    <color name="ios_dark_surface">#1C1C1E</color>
+    <color name="ios_dark_primary">#0A84FF</color>
+    <color name="ios_dark_secondary">#5E5CE6</color>
+    <color name="ios_dark_text_primary">#FFFFFF</color>
+    <color name="ios_dark_text_secondary">#EBEBF5</color>
+    <color name="ios_dark_text_tertiary">#8E8E93</color>
+
+    <!-- glassmorphism overlays - translucent frosted glass effect -->
+    <color name="glass_light">#CCFFFFFF</color>
+    <color name="glass_dark">#CC1C1C1E</color>
+    <color name="glass_border_light">#33FFFFFF</color>
+    <color name="glass_border_dark">#33FFFFFF</color>
+
+    <!-- accent colors for weather/status -->
+    <color name="sunny_yellow">#FFD60A</color>
+    <color name="rainy_blue">#30B0C7</color>
+    <color name="cloudy_gray">#8E8E93</color>
+    <color name="favorite_gold">#FFD700</color>
+
+    <!-- iOS system colors -->
+    <color name="ios_red">#FF3B30</color>
+    <color name="ios_orange">#FF9500</color>
+    <color name="ios_yellow">#FFCC00</color>
+    <color name="ios_green">#34C759</color>
+    <color name="ios_teal">#5AC8FA</color>
+    <color name="ios_blue">#007AFF</color>
+    <color name="ios_indigo">#5856D6</color>
+    <color name="ios_purple">#AF52DE</color>
+    <color name="ios_pink">#FF2D55</color>
 </resources>

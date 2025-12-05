@@ -12,22 +12,27 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+// hilt module that provides repository-layer dependencies
+// repositories abstract data sources and provide clean API for ViewModels
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
 
+    // provides UserRepository for user-related operations
     @Provides
     @Singleton
     fun provideUserRepository(userDao: UserDao): UserRepository {
         return UserRepository(userDao)
     }
 
+    // provides RaceTrackRepository for race track operations
     @Provides
     @Singleton
     fun provideRaceTrackRepository(raceTrackDao: RaceTrackDao): RaceTrackRepository {
         return RaceTrackRepository(raceTrackDao)
     }
 
+    // provides WeatherDataRepository for weather data operations
     @Provides
     @Singleton
     fun provideWeatherDataRepository(weatherDataDao: WeatherDataDao): WeatherDataRepository {
