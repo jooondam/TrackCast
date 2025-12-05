@@ -6,9 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.trackcast.data.database.repository.UserRepository
 import com.example.trackcast.data.entities.User
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
+@HiltViewModel
+class UserViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     // current logged in user
     private val _currentUser = MutableLiveData<User?>()
@@ -23,6 +28,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     val registrationStatus: LiveData<RegistrationStatus> = _registrationStatus
 
     // login function
+    // NEED TO: add input validation
     fun login(email: String, password: String) {
         viewModelScope.launch {
             try {
@@ -75,7 +81,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 userRepository.update(user)
                 _currentUser.value = user
             } catch (e: Exception) {
-                // handle error
+                // NEED TO: handle update error and notify user
             }
         }
     }
