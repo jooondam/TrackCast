@@ -40,6 +40,9 @@ data class RaceTrack(
     @ColumnInfo(name = "country")
     val country: String,
 
+    @ColumnInfo(name = "image_url")
+    val imageUrl: String? = null,
+
     @ColumnInfo(name = "is_favorite")
     val isFavorite: Boolean = false,
 

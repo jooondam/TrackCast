@@ -23,6 +23,8 @@
     <string name="country_hint">enter country</string>
     <string name="latitude_hint">latitude</string>
     <string name="longitude_hint">longitude</string>
+    <string name="image_url_hint">track image url (optional)</string>
+    <string name="image_url_helper">paste url for famous track images like spa, le mans, road atlanta</string>
     <string name="save">save</string>
     <string name="cancel">cancel</string>
     <string name="use_current_location">use current location</string>

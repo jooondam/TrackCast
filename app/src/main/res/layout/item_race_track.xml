@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- track list item with ios-style glassmorphism design -->
+<!-- design inspired by modern ios cards with translucent glass effects -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- track image with rounded corners for vivid track photos -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imageTrack"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/track_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.TrackCast.MediumComponent"
+            tools:src="@android:drawable/ic_menu_gallery" />
+
+        <!-- glassmorphic overlay on image for depth effect -->
+        <View
+            android:id="@+id/imageOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#22000000"
+            app:layout_constraintBottom_toBottomOf="@id/imageTrack"
+            app:layout_constraintEnd_toEndOf="@id/imageTrack"
+            app:layout_constraintStart_toStartOf="@id/imageTrack"
+            app:layout_constraintTop_toTopOf="@id/imageTrack" />
+
+        <!-- track name -->
+        <TextView
+            android:id="@+id/textTrackName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/iconFavorite"
+            app:layout_constraintStart_toEndOf="@id/imageTrack"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="spa-francorchamps" />
+
+        <!-- location with icon -->
+        <ImageView
+            android:id="@+id/iconLocation"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/location"
+            android:src="@android:drawable/ic_menu_mylocation"
+            android:tint="?attr/colorPrimary"
+            app:layout_constraintStart_toEndOf="@id/imageTrack"
+            app:layout_constraintTop_toBottomOf="@id/textTrackName" />
+
+        <TextView
+            android:id="@+id/textLocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintBottom_toBottomOf="@id/iconLocation"
+            app:layout_constraintEnd_toStartOf="@id/iconFavorite"
+            app:layout_constraintStart_toEndOf="@id/iconLocation"
+            app:layout_constraintTop_toTopOf="@id/iconLocation"
+            tools:text="belgium" />
+
+        <!-- weather info with glassmorphic badge -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardWeather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:layout_constraintStart_toEndOf="@id/imageTrack"
+            app:layout_constraintTop_toBottomOf="@id/iconLocation">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp">
+
+                <!-- weather icon -->
+                <ImageView
+                    android:id="@+id/iconWeather"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="@string/weather_info"
+                    android:src="@android:drawable/ic_menu_day"
+                    android:tint="@color/sunny_yellow"
+                    tools:ignore="UseAppTint" />
+
+                <!-- temperature -->
+                <TextView
+                    android:id="@+id/textTemperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="22°c" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- track surface temp badge -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSurfaceTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/cardWeather"
+            app:layout_constraintStart_toEndOf="@id/cardWeather"
+            app:layout_constraintTop_toTopOf="@id/cardWeather">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="@string/track_surface_temp"
+                    android:src="@android:drawable/ic_dialog_info"
+                    android:tint="@color/ios_orange"
+                    tools:ignore="UseAppTint" />
+
+                <TextView
+                    android:id="@+id/textSurfaceTemp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="35°c" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- favorite icon with glass effect -->
+        <ImageView
+            android:id="@+id/iconFavorite"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/favorite"
+            android:padding="4dp"
+            android:src="@android:drawable/star_off"
+            android:tint="@color/favorite_gold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UseAppTint" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

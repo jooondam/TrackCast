@@ -1,20 +1,192 @@
 package com.example.trackcast
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.trackcast.data.entities.RaceTrack
+import com.example.trackcast.databinding.ActivityMainBinding
+import com.example.trackcast.ui.adapter.SwipeToDeleteCallback
+import com.example.trackcast.ui.adapter.TrackAdapter
+import com.example.trackcast.ui.viewmodel.RaceTrackViewModel
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var trackAdapter: TrackAdapter
+    private val viewModel: RaceTrackViewModel by viewModels()
+    private var isShowingFavoritesOnly = false
+    private var suppressNextSuccessMessage = false
+
+    /* ActivityResultLauncher for add/edit track functionality
+       using modern Android API to replace deprecated startActivityForResult
+       reference: https://developer.android.com/training/basics/intents/result */
+    private val addEditTrackLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // track was successfully added or edited, list will update automatically via LiveData
+            Snackbar.make(binding.root, "track saved", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
+        setupRecyclerView()
+        setupSwipeToDelete()
+        setupFilters()
+        setupFab()
+        observeViewModel()
+
+        // restore filter state on configuration change (e.g., screen rotation)
+        // this ensures the user's filter preference is maintained across lifecycle events
+        if (savedInstanceState != null) {
+            isShowingFavoritesOnly = savedInstanceState.getBoolean(KEY_FAVORITES_FILTER, false)
+            binding.chipFavorites.isChecked = isShowingFavoritesOnly
         }
+
+        // set user id (for now using dummy id 1, later will come from auth)
+        viewModel.setUserId(1)
+    }
+
+    private fun setupRecyclerView() {
+        trackAdapter = TrackAdapter(
+            onTrackClick = { track ->
+                // open edit screen using ActivityResultLauncher
+                val intent = Intent(this, AddTrackActivity::class.java)
+                intent.putExtra("TRACK_ID", track.trackId)
+                addEditTrackLauncher.launch(intent)
+            },
+            onFavoriteClick = { track ->
+                toggleFavorite(track)
+            }
+        )
+
+        binding.recyclerViewTracks.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = trackAdapter
+        }
+    }
+
+    /* swipe to delete implementation
+       adapted from android itemtouchhelper docs */
+    private fun setupSwipeToDelete() {
+        val swipeHandler = object : SwipeToDeleteCallback(this) {
+            override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.bindingAdapterPosition
+                val track = trackAdapter.currentList[position]
+                deleteTrack(track)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewTracks)
+    }
+
+    private fun setupFilters() {
+        binding.chipFavorites.setOnCheckedChangeListener { _, isChecked ->
+            isShowingFavoritesOnly = isChecked
+            // trigger list update by manually calling the observers
+            if (isChecked) {
+                viewModel.favoriteTracks.value?.let { updateTrackList(it) }
+            } else {
+                viewModel.raceTracks.value?.let { updateTrackList(it) }
+            }
+        }
+
+        // todo: add search functionality
+        binding.searchBar.setOnClickListener {
+            Snackbar.make(binding.root, "search coming soon", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupFab() {
+        binding.fabAddTrack.setOnClickListener {
+            val intent = Intent(this, AddTrackActivity::class.java)
+            addEditTrackLauncher.launch(intent)
+        }
+    }
+
+    private fun observeViewModel() {
+        // observe all tracks
+        viewModel.raceTracks.observe(this) { tracks ->
+            if (!isShowingFavoritesOnly) {
+                updateTrackList(tracks)
+            }
+        }
+
+        // observe favorite tracks
+        viewModel.favoriteTracks.observe(this) { favTracks ->
+            if (isShowingFavoritesOnly) {
+                updateTrackList(favTracks)
+            }
+        }
+
+        // observe operation status
+        viewModel.operationStatus.observe(this) { status ->
+            when (status) {
+                is RaceTrackViewModel.OperationStatus.Success -> {
+                    // suppress success message if we're showing custom snackbar (like for delete with undo)
+                    if (!suppressNextSuccessMessage) {
+                        Snackbar.make(binding.root, status.message, Snackbar.LENGTH_SHORT).show()
+                    }
+                    suppressNextSuccessMessage = false
+                }
+                is RaceTrackViewModel.OperationStatus.Error -> {
+                    Snackbar.make(binding.root, "error: ${status.message}", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun updateTrackList(tracks: List<RaceTrack>) {
+        trackAdapter.submitList(tracks)
+        updateEmptyState(tracks.isEmpty())
+    }
+
+    private fun toggleFavorite(track: RaceTrack) {
+        viewModel.toggleFavorite(track)
+    }
+
+    private fun deleteTrack(track: RaceTrack) {
+        // suppress the ViewModel's success message since we're showing our own with undo
+        suppressNextSuccessMessage = true
+
+        // show undo snackbar immediately (before calling viewModel)
+        Snackbar.make(binding.root, "${track.trackName} deleted", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                viewModel.addTrack(track)
+            }.show()
+
+        // delete from database
+        viewModel.deleteTrack(track)
+    }
+
+    private fun updateEmptyState(isEmpty: Boolean) {
+        binding.emptyStateLayout.visibility = if (isEmpty) android.view.View.VISIBLE else android.view.View.GONE
+        binding.recyclerViewTracks.visibility = if (isEmpty) android.view.View.GONE else android.view.View.VISIBLE
+    }
+
+    /* save instance state for activity lifecycle
+       this preserves user's filter preference when activity is paused/resumed
+       handles configuration changes like screen rotation
+       reference: https://developer.android.com/guide/components/activities/activity-lifecycle */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_FAVORITES_FILTER, isShowingFavoritesOnly)
+    }
+
+    companion object {
+        private const val KEY_FAVORITES_FILTER = "key_favorites_filter"
     }
 }

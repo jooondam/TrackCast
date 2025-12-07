@@ -82,4 +82,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // Coil Image Loading (https://coil-kt.github.io/coil/)
+    implementation(libs.coil)
+
 }

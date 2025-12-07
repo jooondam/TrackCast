@@ -2,6 +2,8 @@ package com.example.trackcast.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.trackcast.data.dao.RaceTrackDao
 import com.example.trackcast.data.dao.UserDao
 import com.example.trackcast.data.dao.WeatherDataDao
@@ -29,7 +31,16 @@ object DatabaseModule {
             context,
             TrackCastDatabase::class.java,
             "trackcast_database"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                // insert default user directly using SQL
+                db.execSQL("INSERT INTO users (userId, username, email, password, temperature_unit, wind_speed_unit, date_joined) VALUES (1, 'default_user', 'user@trackcast.com', '', 'Celsius', 'kph', ${System.currentTimeMillis()})")
+            }
+        })
+        .build()
     }
 
     // provides UserDao for user database operations
