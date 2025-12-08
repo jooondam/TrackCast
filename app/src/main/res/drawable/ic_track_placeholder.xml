@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholder icon for race tracks when no image URL is provided -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="90dp"
+    android:height="90dp"
+    android:viewportWidth="90"
+    android:viewportHeight="90">
+
+    <!-- Soft gradient background -->
+    <path
+        android:fillColor="#F5F5F7"
+        android:pathData="M0,0h90v90h-90z"/>
+
+    <!-- Subtle track circuit illustration -->
+    <path
+        android:strokeColor="#D1D1D6"
+        android:strokeWidth="8"
+        android:fillColor="@android:color/transparent"
+        android:strokeLineCap="round"
+        android:pathData="M25,45 Q25,25 45,25 Q65,25 65,45 Q65,65 45,65 Q25,65 25,45"/>
+
+    <!-- Start/finish line -->
+    <path
+        android:fillColor="#007AFF"
+        android:pathData="M42,20 L42,30 L48,30 L48,20 Z M42,60 L42,70 L48,70 L48,60 Z"/>
+
+    <!-- Racing flag icon in center -->
+    <path
+        android:fillColor="#8E8E93"
+        android:pathData="M35,38h4v4h-4z M39,42h4v4h-4z M35,46h4v4h-4z M43,38h4v4h-4z M47,42h4v4h-4z M43,46h4v4h-4z"/>
+
+</vector>

@@ -3,6 +3,8 @@ package com.example.trackcast
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +17,7 @@ import com.example.trackcast.ui.adapter.SwipeToDeleteCallback
 import com.example.trackcast.ui.adapter.TrackAdapter
 import com.example.trackcast.ui.viewmodel.RaceTrackViewModel
 import com.example.trackcast.ui.viewmodel.WeatherViewModel
+import com.example.trackcast.util.ThemePreferences
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -42,6 +45,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply saved theme before calling super.onCreate()
+        ThemePreferences.applyTheme(this)
+
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: MainActivity starting")
 
@@ -229,6 +235,35 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(KEY_FAVORITES_FILTER, isShowingFavoritesOnly)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        updateThemeIcon(menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_theme_toggle -> {
+                toggleTheme()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun toggleTheme() {
+        ThemePreferences.toggleTheme(this)
+        // The activity will be recreated automatically, applying the new theme
+        recreate()
+    }
+
+    private fun updateThemeIcon(menu: Menu?) {
+        val themeItem = menu?.findItem(R.id.action_theme_toggle)
+        val isDark = ThemePreferences.isDarkMode(this)
+        themeItem?.setIcon(if (isDark) R.drawable.ic_light_mode else R.drawable.ic_dark_mode)
+        themeItem?.title = getString(if (isDark) R.string.light_mode else R.string.dark_mode)
     }
 
     companion object {

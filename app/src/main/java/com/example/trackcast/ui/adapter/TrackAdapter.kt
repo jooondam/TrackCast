@@ -64,8 +64,8 @@ class TrackAdapter(
                 // coil provides efficient image loading with caching: https://coil-kt.github.io/coil/
                 imageTrack.load(track.imageUrl) {
                     crossfade(true)
-                    placeholder(R.drawable.ic_launcher_background)
-                    error(R.drawable.ic_launcher_background)
+                    placeholder(R.drawable.ic_track_placeholder)
+                    error(R.drawable.ic_track_placeholder)
                     transformations(RoundedCornersTransformation(16f))
                 }
 
