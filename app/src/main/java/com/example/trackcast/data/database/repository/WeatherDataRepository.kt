@@ -1,8 +1,15 @@
 package com.example.trackcast.data.database.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
+import com.example.trackcast.BuildConfig
 import com.example.trackcast.data.dao.WeatherDataDao
 import com.example.trackcast.data.entities.WeatherData
+import com.example.trackcast.data.mapper.WeatherMapper
+import com.example.trackcast.data.network.NetworkResult
+import com.example.trackcast.data.network.WeatherApiService
+import com.example.trackcast.data.network.safeApiCall
+import javax.inject.Inject
 
 /**
  * Repository for weather data operations.
@@ -27,7 +34,10 @@ import com.example.trackcast.data.entities.WeatherData
  * Reference: API selection rationale documented in TrackCast.md
  * API documentation: https://www.weatherapi.com/docs/
  */
-class WeatherDataRepository(private val weatherDataDao: WeatherDataDao) {
+class WeatherDataRepository @Inject constructor(
+    private val weatherDataDao: WeatherDataDao,
+    private val weatherApiService: WeatherApiService
+) {
 
     fun getWeatherForTrack(trackId: Int): LiveData<List<WeatherData>> {
         return weatherDataDao.getWeatherForTrack(trackId)
@@ -35,6 +45,10 @@ class WeatherDataRepository(private val weatherDataDao: WeatherDataDao) {
 
     fun getLatestWeatherForTrack(trackId: Int): LiveData<WeatherData?> {
         return weatherDataDao.getLatestWeatherForTrack(trackId)
+    }
+
+    fun getAllLatestWeather(): LiveData<List<WeatherData>> {
+        return weatherDataDao.getAllLatestWeather()
     }
 
     suspend fun getWeatherById(weatherId: Int): WeatherData? {
@@ -76,5 +90,46 @@ class WeatherDataRepository(private val weatherDataDao: WeatherDataDao) {
         val maxAgeMillis = maxAgeHours * 60 * 60 * 1000
 
         return weatherAge > maxAgeMillis
+    }
+
+    /**
+     * fetch weather from WeatherAPI.com and store in database
+     */
+    suspend fun fetchAndStoreWeather(
+        trackId: Int,
+        latitude: Double,
+        longitude: Double
+    ): NetworkResult<WeatherData> {
+        val location = "$latitude,$longitude"
+        Log.d(TAG, "fetchAndStoreWeather: Calling API for track $trackId at location $location")
+        Log.d(TAG, "fetchAndStoreWeather: API key starts with: ${BuildConfig.WEATHER_API_KEY.take(10)}...")
+
+        return when (val result = safeApiCall {
+            weatherApiService.getCurrentWeather(
+                apiKey = BuildConfig.WEATHER_API_KEY,
+                location = location
+            )
+        }) {
+            is NetworkResult.Success -> {
+                Log.d(TAG, "fetchAndStoreWeather: API call SUCCESS for track $trackId")
+                val weatherData = WeatherMapper.mapToWeatherData(result.data, trackId)
+                Log.d(TAG, "fetchAndStoreWeather: Mapped weather data - Air: ${weatherData.temperature}°C, Track: ${weatherData.trackSurfaceTemp}°C")
+                val weatherId = insertAndCleanup(weatherData)
+                Log.d(TAG, "fetchAndStoreWeather: Stored in database with ID $weatherId")
+                NetworkResult.Success(weatherData)
+            }
+            is NetworkResult.Error -> {
+                Log.e(TAG, "fetchAndStoreWeather: API call FAILED for track $trackId - ${result.message}")
+                result
+            }
+            is NetworkResult.Loading -> {
+                Log.d(TAG, "fetchAndStoreWeather: API call LOADING for track $trackId")
+                result
+            }
+        }
+    }
+
+    companion object {
+        private const val TAG = "WeatherDataRepository"
     }
 }

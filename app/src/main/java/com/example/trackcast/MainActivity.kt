@@ -2,16 +2,19 @@ package com.example.trackcast
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.trackcast.data.entities.RaceTrack
+import com.example.trackcast.data.entities.WeatherData
 import com.example.trackcast.databinding.ActivityMainBinding
 import com.example.trackcast.ui.adapter.SwipeToDeleteCallback
 import com.example.trackcast.ui.adapter.TrackAdapter
 import com.example.trackcast.ui.viewmodel.RaceTrackViewModel
+import com.example.trackcast.ui.viewmodel.WeatherViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +24,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var trackAdapter: TrackAdapter
     private val viewModel: RaceTrackViewModel by viewModels()
+    private val weatherViewModel: WeatherViewModel by viewModels()
     private var isShowingFavoritesOnly = false
+    private var weatherDataMap = mapOf<Int, WeatherData>()
     private var suppressNextSuccessMessage = false
 
     /* ActivityResultLauncher for add/edit track functionality
@@ -38,9 +43,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: MainActivity starting")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Log.d(TAG, "onCreate: View binding complete")
 
         setSupportActionBar(binding.toolbar)
         setupRecyclerView()
@@ -58,6 +65,27 @@ class MainActivity : AppCompatActivity() {
 
         // set user id (for now using dummy id 1, later will come from auth)
         viewModel.setUserId(1)
+        Log.d(TAG, "onCreate: User ID set")
+
+        // fetch weather for all tracks on startup
+        Log.d(TAG, "onCreate: About to call fetchWeatherForAllTracks()")
+        fetchWeatherForAllTracks()
+        Log.d(TAG, "onCreate: MainActivity onCreate complete")
+    }
+
+    private fun fetchWeatherForAllTracks() {
+        Log.d(TAG, "fetchWeatherForAllTracks: Setting up observer")
+        viewModel.raceTracks.observe(this) { tracks ->
+            Log.d(TAG, "fetchWeatherForAllTracks: Received ${tracks.size} tracks")
+            tracks.forEach { track ->
+                Log.d(TAG, "fetchWeatherForAllTracks: Fetching weather for track ${track.trackId} - ${track.trackName} at (${track.latitude}, ${track.longitude})")
+                weatherViewModel.fetchWeatherForTrack(
+                    track.trackId,
+                    track.latitude,
+                    track.longitude
+                )
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -70,6 +98,9 @@ class MainActivity : AppCompatActivity() {
             },
             onFavoriteClick = { track ->
                 toggleFavorite(track)
+            },
+            getWeatherForTrack = { trackId ->
+                weatherDataMap[trackId]
             }
         )
 
@@ -118,6 +149,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
+        // observe all latest weather data
+        weatherViewModel.allLatestWeather.observe(this) { weatherList ->
+            Log.d(TAG, "observeViewModel: Received ${weatherList.size} weather data items")
+            weatherList.forEach { weather ->
+                Log.d(TAG, "observeViewModel: Weather for track ${weather.trackId}: ${weather.temperature}°C air, ${weather.trackSurfaceTemp}°C track")
+            }
+
+            // create map of trackId -> latest weather data
+            weatherDataMap = weatherList.associateBy { it.trackId }
+
+            // refresh adapter to show updated weather
+            trackAdapter.notifyDataSetChanged()
+        }
+
         // observe all tracks
         viewModel.raceTracks.observe(this) { tracks ->
             if (!isShowingFavoritesOnly) {
@@ -187,6 +232,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val TAG = "MainActivity"
         private const val KEY_FAVORITES_FILTER = "key_favorites_filter"
     }
 }

@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.example.trackcast.data.entities.RaceTrack
 import com.example.trackcast.databinding.ActivityAddTrackBinding
 import com.example.trackcast.ui.viewmodel.RaceTrackViewModel
+import com.example.trackcast.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -20,10 +21,12 @@ class AddTrackActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddTrackBinding
     private val viewModel: RaceTrackViewModel by viewModels()
+    private val weatherViewModel: WeatherViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private var editingTrackId: Int? = null
     private var isEditMode = false
+    private var pendingWeatherFetch: Pair<Double, Double>? = null
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -92,11 +95,34 @@ class AddTrackActivity : AppCompatActivity() {
         viewModel.operationStatus.observe(this) { status ->
             when (status) {
                 is RaceTrackViewModel.OperationStatus.Success -> {
+                    // fetch weather for newly added/updated track
+                    pendingWeatherFetch?.let { (lat, lon) ->
+                        // get the track id from the success message or use editingTrackId
+                        val trackId = editingTrackId ?: viewModel.raceTracks.value?.lastOrNull()?.trackId
+                        trackId?.let { id ->
+                            weatherViewModel.fetchWeatherForTrack(id, lat, lon)
+                        }
+                        pendingWeatherFetch = null
+                    }
+
                     setResult(RESULT_OK)
                     finish()
                 }
                 is RaceTrackViewModel.OperationStatus.Error -> {
                     Snackbar.make(binding.root, "error: ${status.message}", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        // observe weather fetch status
+        weatherViewModel.operationStatus.observe(this) { status ->
+            when (status) {
+                is WeatherViewModel.OperationStatus.Success -> {
+                    // weather fetched successfully, no action needed (will show in track list)
+                }
+                is WeatherViewModel.OperationStatus.Error -> {
+                    // weather fetch failed, but don't block user from continuing
+                    // they can manually refresh later
                 }
             }
         }
@@ -159,6 +185,9 @@ class AddTrackActivity : AppCompatActivity() {
                 longitude = longitude,
                 imageUrl = imageUrl
             )
+
+            // store coordinates for weather fetch after successful save
+            pendingWeatherFetch = Pair(latitude, longitude)
 
             if (isEditMode) {
                 viewModel.updateTrack(track)

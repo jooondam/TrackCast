@@ -6,6 +6,7 @@ import com.example.trackcast.data.dao.WeatherDataDao
 import com.example.trackcast.data.database.repository.RaceTrackRepository
 import com.example.trackcast.data.database.repository.UserRepository
 import com.example.trackcast.data.database.repository.WeatherDataRepository
+import com.example.trackcast.data.network.WeatherApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,7 +36,10 @@ object RepositoryModule {
     // provides WeatherDataRepository for weather data operations
     @Provides
     @Singleton
-    fun provideWeatherDataRepository(weatherDataDao: WeatherDataDao): WeatherDataRepository {
-        return WeatherDataRepository(weatherDataDao)
+    fun provideWeatherDataRepository(
+        weatherDataDao: WeatherDataDao,
+        weatherApiService: WeatherApiService
+    ): WeatherDataRepository {
+        return WeatherDataRepository(weatherDataDao, weatherApiService)
     }
 }

@@ -15,6 +15,10 @@ interface WeatherDataDao {
     @Query("SELECT * FROM weather_data WHERE trackId = :trackId ORDER BY timestamp DESC LIMIT 1")
     fun getLatestWeatherForTrack(trackId: Int): LiveData<WeatherData?>
 
+    // get all latest weather data (one per track) for display in track list
+    @Query("SELECT * FROM weather_data WHERE weatherId IN (SELECT MAX(weatherId) FROM weather_data GROUP BY trackId)")
+    fun getAllLatestWeather(): LiveData<List<WeatherData>>
+
     // get weather by ID
     @Query("SELECT * FROM weather_data WHERE weatherId = :weatherId")
     suspend fun getWeatherById(weatherId: Int): WeatherData?

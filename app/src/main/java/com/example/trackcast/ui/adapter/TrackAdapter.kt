@@ -9,6 +9,7 @@ import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.example.trackcast.R
 import com.example.trackcast.data.entities.RaceTrack
+import com.example.trackcast.data.entities.WeatherData
 import com.example.trackcast.databinding.ItemRaceTrackBinding
 
 /* recyclerview adapter for race track list with ios-style glassmorphism design
@@ -16,7 +17,8 @@ import com.example.trackcast.databinding.ItemRaceTrackBinding
    image loading powered by coil library: https://coil-kt.github.io/coil/ */
 class TrackAdapter(
     private val onTrackClick: (RaceTrack) -> Unit,
-    private val onFavoriteClick: (RaceTrack) -> Unit
+    private val onFavoriteClick: (RaceTrack) -> Unit,
+    private val getWeatherForTrack: (Int) -> WeatherData?
 ) : ListAdapter<RaceTrack, TrackAdapter.TrackViewHolder>(TrackDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -25,7 +27,7 @@ class TrackAdapter(
             parent,
             false
         )
-        return TrackViewHolder(binding, onTrackClick, onFavoriteClick)
+        return TrackViewHolder(binding, onTrackClick, onFavoriteClick, getWeatherForTrack)
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
@@ -35,7 +37,8 @@ class TrackAdapter(
     class TrackViewHolder(
         private val binding: ItemRaceTrackBinding,
         private val onTrackClick: (RaceTrack) -> Unit,
-        private val onFavoriteClick: (RaceTrack) -> Unit
+        private val onFavoriteClick: (RaceTrack) -> Unit,
+        private val getWeatherForTrack: (Int) -> WeatherData?
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(track: RaceTrack) {
@@ -66,11 +69,16 @@ class TrackAdapter(
                     transformations(RoundedCornersTransformation(16f))
                 }
 
-                // placeholder weather data
-                // todo: integrate WeatherAPI.com (see WeatherDataRepository for rationale)
-                // API selection: WeatherAPI.com chosen for 1M calls/month vs OpenWeatherMap's 30K
-                textTemperature.text = "22°c"
-                textSurfaceTemp.text = "35°c"
+                // display real weather data from WeatherAPI.com
+                val weather = getWeatherForTrack(track.trackId)
+                if (weather != null) {
+                    textTemperature.text = "${weather.temperature.toInt()}°c"
+                    textSurfaceTemp.text = "${weather.trackSurfaceTemp.toInt()}°c"
+                } else {
+                    // fallback when no weather data available yet
+                    textTemperature.text = "--°c"
+                    textSurfaceTemp.text = "--°c"
+                }
 
                 // click listeners
                 root.setOnClickListener { onTrackClick(track) }

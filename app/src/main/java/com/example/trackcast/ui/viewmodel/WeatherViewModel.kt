@@ -1,5 +1,6 @@
 package com.example.trackcast.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,9 @@ class WeatherViewModel @Inject constructor(
     val latestWeather: LiveData<WeatherData?> = _currentTrackId.switchMap { trackId ->
         weatherDataRepository.getLatestWeatherForTrack(trackId)
     }
+
+    // all latest weather data (one per track) for display in track list
+    val allLatestWeather: LiveData<List<WeatherData>> = weatherDataRepository.getAllLatestWeather()
 
     // weather staleness status
     private val _isWeatherStale = MutableLiveData<Boolean>()
@@ -153,5 +157,64 @@ class WeatherViewModel @Inject constructor(
     sealed class OperationStatus {
         data class Success(val message: String) : OperationStatus()
         data class Error(val message: String) : OperationStatus()
+    }
+
+    /**
+     * fetch weather from API and store in database
+     * called when adding/editing tracks or when data is stale
+     */
+    fun fetchWeatherForTrack(trackId: Int, latitude: Double,
+                             longitude: Double) {
+        Log.d(TAG, "fetchWeatherForTrack: Starting fetch for track $trackId at ($latitude, $longitude)")
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            val result = weatherDataRepository.fetchAndStoreWeather(trackId,
+                latitude, longitude)
+
+            when (result) {
+                is
+                com.example.trackcast.data.network.NetworkResult.Success -> {
+                    Log.d(TAG, "fetchWeatherForTrack: SUCCESS for track $trackId")
+                    _operationStatus.value =
+                        OperationStatus.Success("weather updated successfully")
+                }
+                is
+                com.example.trackcast.data.network.NetworkResult.Error -> {
+                    Log.e(TAG, "fetchWeatherForTrack: ERROR for track $trackId - ${result.message}")
+                    _operationStatus.value =
+                        OperationStatus.Error(result.message)
+                }
+                is
+                com.example.trackcast.data.network.NetworkResult.Loading -> {
+                    Log.d(TAG, "fetchWeatherForTrack: LOADING for track $trackId")
+                    // already loading
+                }
+            }
+
+            _isLoading.value = false
+        }
+    }
+
+    /**
+     * refresh stale weather data for all tracks
+     * called on app startup to ensure fresh data
+     */
+    fun refreshStaleWeather(tracks:
+                            List<com.example.trackcast.data.entities.RaceTrack>) {
+        viewModelScope.launch {
+            tracks.forEach { track ->
+                val isStale =
+                    weatherDataRepository.isWeatherStale(track.trackId)
+                if (isStale) {
+                    weatherDataRepository.fetchAndStoreWeather(track.trackId,
+                        track.latitude, track.longitude)
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val TAG = "WeatherViewModel"
     }
 }
