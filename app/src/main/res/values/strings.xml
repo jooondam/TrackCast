@@ -59,4 +59,9 @@
     <string name="error_empty_track_name">track name cannot be empty</string>
     <string name="error_empty_location">location cannot be empty</string>
     <string name="error_invalid_coordinates">invalid coordinates</string>
+
+    <!-- theme -->
+    <string name="toggle_theme">toggle theme</string>
+    <string name="dark_mode">dark mode</string>
+    <string name="light_mode">light mode</string>
 </resources>
