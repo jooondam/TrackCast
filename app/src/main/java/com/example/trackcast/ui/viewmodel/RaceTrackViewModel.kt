@@ -77,7 +77,7 @@ class RaceTrackViewModel @Inject constructor(
             try {
                 val trackId = raceTrackRepository.insert(track)
                 if (trackId > 0) {
-                    _operationStatus.value = OperationStatus.Success("Track added successfully")
+                    _operationStatus.value = OperationStatus.Success("Track added successfully", trackId.toInt())
                 } else {
                     _operationStatus.value = OperationStatus.Error("Failed to add track")
                 }
@@ -140,7 +140,7 @@ class RaceTrackViewModel @Inject constructor(
 
     // sealed class for operation status
     sealed class OperationStatus {
-        data class Success(val message: String) : OperationStatus()
+        data class Success(val message: String, val trackId: Int? = null) : OperationStatus()
         data class Error(val message: String) : OperationStatus()
     }
 }

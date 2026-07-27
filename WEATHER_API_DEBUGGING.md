@@ -5,7 +5,7 @@ Implementing WeatherAPI.com integration to fetch real-time weather data for race
 
 ## API Details
 - **API**: WeatherAPI.com
-- **API Key**: dda217d2ede64adaa32165035250712 (stored in local.properties)
+- **API Key**: [REDACTED - see local.properties] (stored in local.properties, not committed)
 - **Endpoint**: https://api.weatherapi.com/v1/current.json
 - **Rate Limit**: 1,000,000 calls/month (free tier)
 
@@ -86,7 +86,7 @@ private fun fetchWeatherForAllTracks() {
 3. **What to Look For in Logcat**
    ```
    SUCCESS:
-   D/OkHttp: --> GET https://api.weatherapi.com/v1/current.json?key=dda217...&q=50.4372,5.9714
+   D/OkHttp: --> GET https://api.weatherapi.com/v1/current.json?key=YOUR_API_KEY&q=50.4372,5.9714
    D/OkHttp: <-- 200 OK (followed by JSON response)
 
    ERRORS:
@@ -160,7 +160,7 @@ Check AndroidManifest.xml has:
 ### Check 3: Test API Key Manually
 Try this URL in browser:
 ```
-https://api.weatherapi.com/v1/current.json?key=dda217d2ede64adaa32165035250712&q=50.4372,5.9714
+https://api.weatherapi.com/v1/current.json?key=YOUR_API_KEY&q=50.4372,5.9714
 ```
 Should return JSON with weather data for Spa-Francorchamps
 

@@ -97,8 +97,8 @@ class AddTrackActivity : AppCompatActivity() {
                 is RaceTrackViewModel.OperationStatus.Success -> {
                     // fetch weather for newly added/updated track
                     pendingWeatherFetch?.let { (lat, lon) ->
-                        // get the track id from the success message or use editingTrackId
-                        val trackId = editingTrackId ?: viewModel.raceTracks.value?.lastOrNull()?.trackId
+                        // use the id returned from the insert/update, not a guess from the (alphabetically sorted) list
+                        val trackId = editingTrackId ?: status.trackId
                         trackId?.let { id ->
                             weatherViewModel.fetchWeatherForTrack(id, lat, lon)
                         }
