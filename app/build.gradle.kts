@@ -3,7 +3,21 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt.android)
+    id("app.cash.paparazzi")
 
+}
+
+// Some paparazzi releases pull in a newer kotlin-compiler-embeddable transitively, which can
+// otherwise win dependency resolution over the project's declared Kotlin version and break
+// the main KSP/Kotlin compile tasks. Pin it back to the version this project actually builds with.
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin" &&
+            requested.name.startsWith("kotlin-compiler")
+        ) {
+            useVersion(libs.versions.kotlin.get())
+        }
+    }
 }
 
 android {
