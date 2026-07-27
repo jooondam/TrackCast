@@ -101,8 +101,6 @@ class WeatherDataRepository @Inject constructor(
         longitude: Double
     ): NetworkResult<WeatherData> {
         val location = "$latitude,$longitude"
-        Log.d(TAG, "fetchAndStoreWeather: Calling API for track $trackId at location $location")
-        Log.d(TAG, "fetchAndStoreWeather: API key starts with: ${BuildConfig.WEATHER_API_KEY.take(10)}...")
 
         return when (val result = safeApiCall {
             weatherApiService.getCurrentWeather(
@@ -111,21 +109,15 @@ class WeatherDataRepository @Inject constructor(
             )
         }) {
             is NetworkResult.Success -> {
-                Log.d(TAG, "fetchAndStoreWeather: API call SUCCESS for track $trackId")
                 val weatherData = WeatherMapper.mapToWeatherData(result.data, trackId)
-                Log.d(TAG, "fetchAndStoreWeather: Mapped weather data - Air: ${weatherData.temperature}°C, Track: ${weatherData.trackSurfaceTemp}°C")
-                val weatherId = insertAndCleanup(weatherData)
-                Log.d(TAG, "fetchAndStoreWeather: Stored in database with ID $weatherId")
+                insertAndCleanup(weatherData)
                 NetworkResult.Success(weatherData)
             }
             is NetworkResult.Error -> {
-                Log.e(TAG, "fetchAndStoreWeather: API call FAILED for track $trackId - ${result.message}")
+                Log.e(TAG, "fetchAndStoreWeather: API call failed for track $trackId - ${result.message}")
                 result
             }
-            is NetworkResult.Loading -> {
-                Log.d(TAG, "fetchAndStoreWeather: API call LOADING for track $trackId")
-                result
-            }
+            is NetworkResult.Loading -> result
         }
     }
 

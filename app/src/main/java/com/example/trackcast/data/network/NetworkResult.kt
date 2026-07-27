@@ -20,10 +20,7 @@ sealed class NetworkResult<out T> {
 suspend fun <T> safeApiCall(apiCall: suspend () -> T):
         NetworkResult<T> {
     return try {
-        Log.d(TAG, "safeApiCall: Making API call...")
-        val result = apiCall()
-        Log.d(TAG, "safeApiCall: API call successful")
-        NetworkResult.Success(result)
+        NetworkResult.Success(apiCall())
     } catch (e: retrofit2.HttpException) {
         val errorMessage = when (e.code()) {
             401, 403 -> "Invalid API key"
