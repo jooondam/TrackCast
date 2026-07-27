@@ -1,6 +1,6 @@
 # TrackCast
 
-Android app for tracking live weather and track-surface conditions at race circuits. Built to get hands-on with a modern native Android stack: Kotlin, MVVM, Hilt, Room — on something more concrete than a todo app.
+Android app for tracking live weather and track-surface conditions at race circuits. Built to get hands-on with a modern native Android stack: Kotlin, MVVM, Hilt, Room, on something more concrete than a todo app.
 
 Save your favorite circuits, pull live air and track-surface temperature for each, and filter down to the ones you care about.
 
