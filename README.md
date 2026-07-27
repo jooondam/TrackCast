@@ -31,7 +31,7 @@ Save your favorite circuits, pull live air and track-surface temperature for eac
 | DI | Hilt-wired repositories and ViewModels across both activities |
 | UI | Material 3 + ViewBinding, iOS-inspired glassmorphism, light/dark themes |
 | Location | FusedLocationProvider for "use current location" when adding a track |
-| Screenshot testing | Paparazzi renders app screens on the JVM, no device required |
+| Screenshot testing | JVM-based rendering of app screens, no device or emulator required |
 
 ## Tech stack
 
@@ -40,7 +40,7 @@ Save your favorite circuits, pull live air and track-surface temperature for eac
 - Room for local persistence
 - Retrofit + OkHttp for networking
 - Material 3 components
-- Paparazzi for screenshot tests
+- JVM-based screenshot tests
 
 ## Setup
 
@@ -97,7 +97,7 @@ app/src/main/java/com/example/trackcast/
   MainActivity.kt    Track list, search, favorites filter
   AddTrackActivity.kt  Add / edit a track
 app/src/test/
-  java/.../screenshot/  Paparazzi screenshot tests
+  java/.../screenshot/  Screenshot tests
   snapshots/            Golden images
 ```
 
