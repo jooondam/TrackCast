@@ -1,6 +1,6 @@
 # TrackCast
 
-Android app for tracking live weather and track-surface conditions at race circuits. Built to get hands-on with a modern native Android stack — Kotlin, MVVM, Hilt, Room — on something more concrete than a todo app.
+Android app for tracking live weather and track-surface conditions at race circuits. Built to get hands-on with a modern native Android stack (Kotlin, MVVM, Hilt, Room) on something more concrete than a todo app.
 
 Save your favorite circuits, pull live air and track-surface temperature for each, and filter down to the ones you care about.
 
@@ -103,4 +103,4 @@ app/src/test/
 
 ## Data notice
 
-TrackCast doesn't ship an API key. Bring your own free [WeatherAPI.com](https://www.weatherapi.com/) key and drop it in `local.properties` as shown above — it's git-ignored and never committed.
+TrackCast doesn't ship an API key. Bring your own free [WeatherAPI.com](https://www.weatherapi.com/) key and drop it in `local.properties` as shown above; it's git-ignored and never committed.
